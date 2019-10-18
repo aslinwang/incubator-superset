@@ -22,6 +22,11 @@ RUN useradd --user-group --create-home --no-log-init --shell /bin/bash superset
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
+WORKDIR /home/superset
+
+COPY sources.list .
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak && mv sources.list /etc/apt/
+
 RUN apt-get update -y
 
 # Install dependencies to fix `curl https support error` and `elaying package configuration warning`
@@ -41,17 +46,20 @@ RUN apt-get install -y vim less postgresql-client redis-tools
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get install -y nodejs
 
-WORKDIR /home/superset
-
 COPY requirements.txt .
 COPY requirements-dev.txt .
 COPY contrib/docker/requirements-extra.txt .
+
+RUN pip config set global.index-url  https://mirrors.cloud.tencent.com/pypi/simple
+
+RUN pip config set global.trusted-host  mirrors.cloud.tencent.com
 
 RUN pip install --upgrade setuptools pip \
     && pip install -r requirements.txt -r requirements-dev.txt -r requirements-extra.txt \
     && rm -rf /root/.cache/pip
 
-COPY --chown=superset:superset superset superset
+COPY superset superset
+RUN chown -R superset:superset superset
 
 ENV PATH=/home/superset/superset/bin:$PATH \
     PYTHONPATH=/home/superset/superset/:$PYTHONPATH
