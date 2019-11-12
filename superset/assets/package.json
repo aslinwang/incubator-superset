@@ -11,6 +11,7 @@
     "tdd": "jest --watch",
     "test": "jest",
     "cover": "jest --coverage",
+    "server": "pyenv global 3.7.0/envs/superset_env_py3 && superset run -p 8080 -h 0.0.0.0",
     "dev": "webpack --mode=development --colors --progress --debug --watch",
     "dev-server": "webpack-dev-server --mode=development --progress",
     "prod": "node --max_old_space_size=4096 webpack --mode=production --colors --progress",
